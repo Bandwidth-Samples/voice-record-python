@@ -1,10 +1,10 @@
-# Sample App Title
+# Voice Record
 
-<a href="http://dev.bandwidth.com">
-  <img src="https://s3.amazonaws.com/bwdemos/BW-VMP.png" title="Product Quick Start Guide" alt="Product Quick Start Guide"/> <!--src should be image located in repo-->
+<a href="https://dev.bandwidth.com/docs/voice/quickStart">
+  <img src="./icon-voice.svg" title="Voice Quick Start Guide" alt="Voice Quick Start Guide"/>
 </a>
 
- # Table of Contents
+# Table of Contents
 
 * [Description](#description)
 * [Pre-Requisites](#pre-requisites)
@@ -12,10 +12,13 @@
 * [Environmental Variables](#environmental-variables)
 * [Callback URLs](#callback-urls)
   * [Ngrok](#ngrok)
-
 # Description
 
-A short description of your sample app and its capabilities.
+This sample app demonstrates how to record a message from an inbound call, similar to how a voicemail machine would work.
+
+When the user calls the Bandwidth phone number associated with this application, the user will hear an audio prompt to leave a message, then a beep. Once this happens, the call will begin recording.
+
+When the call ends, Bandwidth will start to process the recording. Once this processing is complete, Bandwidth will send a webhook to the /recordingAvailableCallback endpoint on this application. Once received, the application will download the recording via Bandwidth's voice recording API.
 
 # Pre-Requisites
 
@@ -30,13 +33,13 @@ For more information about API credentials see our [Account Credentials](https:/
 To install the required packages for this app, run the command:
 
 ```sh
-# package install command here
+pip install -r requirements.txt
 ```
 
-Use the following command/s to run the application:
+Use the following command to run the application:
 
 ```sh
-# start command here
+python main.py
 ```
 
 # Environmental Variables
@@ -47,21 +50,16 @@ The sample app uses the below environmental variables.
 BW_ACCOUNT_ID                        # Your Bandwidth Account Id
 BW_USERNAME                          # Your Bandwidth API Username
 BW_PASSWORD                          # Your Bandwidth API Password
-BW_NUMBER                            # The Bandwidth phone number involved with this application
-USER_NUMBER                          # The user's phone number involved with this application
-BW_VOICE_APPLICATION_ID              # Your Voice Application Id created in the dashboard
-BW_MESSAGING_APPLICATION_ID          # Your Messaging Application Id created in the dashboard
-BASE_CALLBACK_URL                    # Your public base url to receive Bandwidth Webhooks. No trailing '/'
 LOCAL_PORT                           # The port number you wish to run the sample on
 ```
 
 # Callback URLs
 
-For a detailed introduction, check out our [Bandwidth Product Specific Callbacks](https://dev.bandwidth.com/docs/messaging/webhooks) page.
+For a detailed introduction, check out our [Bandwidth Voice Callbacks](https://dev.bandwidth.com/docs/voice/webhooks) page.
 
 Below are the callback paths:
-* **Should follow `/callbacks/{direction}/{service}` conventions**
-* `<add other callbacks>`
+* `/callbacks/callInitiatedCallback`
+* `/callbacks/recordingAvailableCallback`
 
 ## Ngrok
 
@@ -72,4 +70,6 @@ After you have downloaded and installed `ngrok` run the following command to ope
 ngrok http $LOCAL_PORT
 ```
 
-You can view your public URL at `http://127.0.0.1:4040` after ngrok is running.  You can also view the status of the tunnel and requests/responses here.
+You can view your public URL at `http://127.0.0.1:4040` after ngrok is running.  You can also view the status of the tunnel and requests/responses here. 
+
+Once your public ngrok url has been created, you can use it as the `BASE_CALLBACK_URL` environmental variable and set it in the voice application created in the [Pre-Requisites](#pre-requisites) section.
