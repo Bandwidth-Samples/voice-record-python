@@ -63,13 +63,14 @@ Below are the callback paths:
 
 ## Ngrok
 
-A simple way to set up a local callback URL for testing is to use the free tool [ngrok](https://ngrok.com/).  
+A simple way to set up a local callback URL for testing is to use the free tool [ngrok](https://ngrok.com/).
 After you have downloaded and installed `ngrok` run the following command to open a public tunnel to your port (`$LOCAL_PORT`)
 
 ```sh
 ngrok http $LOCAL_PORT
 ```
 
-You can view your public URL at `http://127.0.0.1:4040` after ngrok is running.  You can also view the status of the tunnel and requests/responses here. 
+You can view your public URL at `http://127.0.0.1:4040` after ngrok is running. You can also view the status of the tunnel and requests/responses here. 
 
-Once your public ngrok url has been created, you can use it as the `BASE_CALLBACK_URL` environmental variable and set it in the voice application created in the [Pre-Requisites](#pre-requisites) section.
+Once your public ngrok url has been created, you can update the voice application you created in the [Pre-Requisites](#pre-requisites) section to use it.
+Your `Call-initiated callback url` will be: `<your-public-ngrok-url>/callbacks/callInitiatedCallback`

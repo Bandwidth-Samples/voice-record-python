@@ -13,11 +13,7 @@ try:
     BW_USERNAME = os.environ['BW_USERNAME']
     BW_PASSWORD = os.environ['BW_PASSWORD']
     BW_ACCOUNT_ID = os.environ['BW_ACCOUNT_ID']
-    BW_VOICE_APPLICATION_ID = os.environ['BW_VOICE_APPLICATION_ID']
-    BW_NUMBER = os.environ['BW_NUMBER']
-    USER_NUMBER = os.environ['USER_NUMBER']
     LOCAL_PORT = int(os.environ['LOCAL_PORT'])
-    BASE_CALLBACK_URL = os.environ['BASE_CALLBACK_URL']
 except KeyError as e:
     print(f"Please set the environmental variables defined in the README\n\n{e}")
     sys.exit(1)
