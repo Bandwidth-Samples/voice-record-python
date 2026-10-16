@@ -16,9 +16,9 @@
 
 This sample app demonstrates how to record a message from an inbound call, similar to how a voicemail machine would work.
 
-When the user calls the Bandwidth phone number associated with this application, the user will hear an audio prompt to leave a message, then a beep. Once this happens, the call will begin recording.
+When the user calls the Bandwidth phone number associated with this application, the user will hear an audio prompt to leave a message, then a beep. Once this happens, the call will begin recording, for up to 30 seconds.
 
-When the call ends, Bandwidth will start to process the recording. Once this processing is complete, Bandwidth will send a webhook to the /recordingAvailableCallback endpoint on this application. Once received, the application will download the recording via Bandwidth's voice recording API.
+When the call ends, Bandwidth will start to process the recording. Once this processing is complete, Bandwidth will send a webhook to the `/callbacks/inbound/voice/recordingAvailable` endpoint on this application. Once received, the application will download the recording via Bandwidth's voice recording API.
 
 # Pre-Requisites
 
@@ -48,8 +48,8 @@ The sample app uses the below environmental variables.
 
 ```sh
 BW_ACCOUNT_ID                        # Your Bandwidth Account Id
-BW_USERNAME                          # Your Bandwidth API Username
-BW_PASSWORD                          # Your Bandwidth API Password
+BW_CLIENT_ID                         # Your Bandwidth API OAuth Client Id
+BW_CLIENT_SECRET                     # Your Bandwidth API OAuth Client Secret
 LOCAL_PORT                           # The port number you wish to run the sample on
 ```
 
@@ -58,8 +58,10 @@ LOCAL_PORT                           # The port number you wish to run the sampl
 For a detailed introduction, check out our [Bandwidth Voice Callbacks](https://dev.bandwidth.com/docs/voice/webhooks) page.
 
 Below are the callback paths:
-* `/callbacks/callInitiatedCallback`
-* `/callbacks/recordingAvailableCallback`
+* `/callbacks/inbound/voice`
+* `/callbacks/inbound/voice/recordingAvailable`
+
+The app also serves the prompt tone at `/tone.mp3`, which is not a callback.
 
 ## Ngrok
 
@@ -73,4 +75,4 @@ ngrok http $LOCAL_PORT
 You can view your public URL at `http://127.0.0.1:4040` after ngrok is running. You can also view the status of the tunnel and requests/responses here. 
 
 Once your public ngrok url has been created, you can update the voice application you created in the [Pre-Requisites](#pre-requisites) section to use it.
-Your `Call-initiated callback url` will be: `<your-public-ngrok-url>/callbacks/callInitiatedCallback`
+Your `Call-initiated callback url` will be: `<your-public-ngrok-url>/callbacks/inbound/voice`
