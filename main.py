@@ -3,16 +3,16 @@ import os
 import sys
 
 import bandwidth
-from bandwidth import ApiException
 from bandwidth.models.bxml import Response as BxmlResponse
 from bandwidth.models.bxml import SpeakSentence, PlayAudio, Record
 from fastapi import FastAPI, Response
+from fastapi.exceptions import RequestValidationError
 import uvicorn
 
 try:
-    BW_USERNAME = os.environ['BW_USERNAME']
-    BW_PASSWORD = os.environ['BW_PASSWORD']
     BW_ACCOUNT_ID = os.environ['BW_ACCOUNT_ID']
+    BW_CLIENT_ID = os.environ['BW_CLIENT_ID']
+    BW_CLIENT_SECRET = os.environ['BW_CLIENT_SECRET']
     LOCAL_PORT = int(os.environ['LOCAL_PORT'])
 except KeyError as e:
     print(f"Please set the environmental variables defined in the README\n\n{e}")
@@ -24,20 +24,25 @@ except ValueError as e:
 app = FastAPI()
 
 bandwidth_configuration = bandwidth.Configuration(
-    username=BW_USERNAME,
-    password=BW_PASSWORD
+    client_id=BW_CLIENT_ID,
+    client_secret=BW_CLIENT_SECRET
 )
 
 bandwidth_api_client = bandwidth.ApiClient(bandwidth_configuration)
 bandwidth_recordings_api_instance = bandwidth.RecordingsApi(bandwidth_api_client)
 
 
+@app.exception_handler(RequestValidationError)
+def invalid_request(request, exc):
+    return Response(status_code=http.HTTPStatus.BAD_REQUEST)
+
+
 @app.get('/tone.mp3', status_code=http.HTTPStatus.OK)
 def return_tone():
-    return Response(content=open('Tone.mp3', 'rb').read(), media_type="audio/mpeg")
+    return Response(content=open('tone.mp3', 'rb').read(), media_type="audio/mpeg")
 
 
-@app.post('/callbacks/callInitiatedCallback', status_code=http.HTTPStatus.OK)
+@app.post('/callbacks/inbound/voice', status_code=http.HTTPStatus.OK)
 def inbound_call(data: bandwidth.models.InitiateCallback):
     if data.event_type != "initiate":
         print(f"Received unexpected event type: {data.event_type}")
@@ -49,13 +54,13 @@ def inbound_call(data: bandwidth.models.InitiateCallback):
         text="At the tone, please record your message, when you have finished recording, you may hang up."
     )
     tone = PlayAudio(audio_uri="/tone.mp3")
-    record = Record(recording_available_url="/callbacks/recordingAvailableCallback", max_duration=30)
+    record = Record(recording_available_url="/callbacks/inbound/voice/recordingAvailable", max_duration=30)
     bxml_response = BxmlResponse([unavailable_speak_sentence, message_speak_sentence, tone, record])
 
     return Response(content=bxml_response.to_bxml(), media_type="application/xml")
 
 
-@app.post('/callbacks/recordingAvailableCallback', status_code=http.HTTPStatus.NO_CONTENT)
+@app.post('/callbacks/inbound/voice/recordingAvailable', status_code=http.HTTPStatus.NO_CONTENT)
 def outbound_call(data: bandwidth.models.RecordingAvailableCallback):
     if data.event_type != "recordingAvailable":
         print(f"Received unexpected event type: {data.event_type}")
@@ -67,7 +72,7 @@ def outbound_call(data: bandwidth.models.RecordingAvailableCallback):
 
     try:
         recording = bandwidth_recordings_api_instance.download_call_recording(BW_ACCOUNT_ID, call_id, recording_id)
-    except ApiException as e:
+    except Exception as e:
         print(f"Error downloading recording: {e}")
         return Response(status_code=http.HTTPStatus.INTERNAL_SERVER_ERROR)
 
